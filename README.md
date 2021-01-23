@@ -8,4 +8,5 @@ The My Realtor app helps you perform searches for realestate properties that are
 ### API
 
 The My Realtor app is leveraging the following API to obtain the data for the searches:
-[title](https://rapidapi.com/apidojo/api/realtor/endpoints)
+
+[Realotr API](https://rapidapi.com/apidojo/api/realtor/endpoints)
