@@ -19,7 +19,7 @@ Run the following command to create virtual enviorement: python3 -m venv env
 
 In the same folder run the following command so you can activate the virtual enviorement: source env/bin/activate
 
-***once you are done using the app type in 'deactivate' to exit the virtual enviorment'
+***once you are done using the app type in 'deactivate' to exit the virtual enviorment***
 
 Run the following commands to install the necessary libraries:
 
