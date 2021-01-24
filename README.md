@@ -28,3 +28,5 @@ pip3 install requests
 pip3 install simple-term-menu
 
 pip3 install keyring
+
+pip3 install pandas
