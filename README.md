@@ -13,7 +13,7 @@ The My Realtor app is leveraging the following API to obtain the data for the se
 
 ### Installation
 
-These instructions are for macOS devices only. Create a folder for your app and name it. Open terminal and access the newly created folder.
+These instructions are for macOS devices only. Create a folder for your app and name it. Create a subfolder named 'saved_searches'. Open terminal and access the parent folder.
 
 Run the following command to create virtual enviorement: python3 -m venv env
 
