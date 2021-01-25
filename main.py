@@ -3,13 +3,13 @@ from simple_term_menu import TerminalMenu
 import keyring
 import pandas as pd
 import csv
-from os import path
+from os import path, listdir
 
 class Search:
   '''Performs a search by calling the API and saves the response in a dictionary'''
   def __init__(self):
     '''initialize a search menu'''
-    self.__search_input = {'offset': '0', 'limit': '5'}
+    self.__search_input = {'offset': '0', 'limit': '200'}
     self.__search_results = {}
     # getting the api key from key chain
     self.__api_key = keyring.get_password('realtor', 'realtor')
@@ -66,21 +66,33 @@ class Search:
     if response_dict['properties']:
       try:
         # creating a new organized dict that can be used for saving the data to files or analyzing it as a df
-        address_list = []
+        street_list = []
+        city_list = []
+        state_list = []
+        zip_code_list = []
         baths_list = []
         beds_list = []
         price_list = []
         web_url_list = []
         type_list = []
         for property in response_dict['properties']:
-          address = f"{property['address']['line']} {property['address']['city']}, {property['address']['state_code']} {property['address']['postal_code']}"
-          address_list.append(address)
+          street = f"{property['address']['line']}"
+          street_list.append(street)
+          city = f"{property['address']['city']}"
+          city_list.append(city)
+          state = f"{property['address']['state_code']}"
+          state_list.append(state)
+          zip_code = f"{property['address']['postal_code']}"
+          zip_code_list.append(zip_code)
           baths_list.append(property['baths'])
           beds_list.append(property['beds'])
           price_list.append(property['price'])
           type_list.append(property['prop_type'])
           web_url_list.append(property['rdc_web_url'])
-        self.__search_results['Address'] = address_list
+        self.__search_results['Street'] = street_list
+        self.__search_results['City'] = city_list
+        self.__search_results['State'] = state_list
+        self.__search_results['Postal Code'] = zip_code_list
         self.__search_results['Bathrooms'] = baths_list
         self.__search_results['Bedrooms'] = beds_list
         self.__search_results['Price'] = price_list
@@ -105,6 +117,48 @@ class Search:
     elif not path.exists(f'saved_searches/{file_name}.csv'):
       df = pd.DataFrame(self.__search_results)
       df.to_csv(path_or_buf=f'saved_searches/{file_name}.csv', index=False, quoting=csv.QUOTE_NONE, escapechar='"')
-      print('Your search was saved successfully in the saved_searches folder.')
+      print('\nYour search was saved successfully in the saved_searches folder.\n')
 
+
+class AnalyzeSearch(Search):
+  '''Inherits from Search, analyzes a search from a dict or saved csv search data'''
+  def __init__(self):
+    '''Initializes a menu'''
+    while True:
+      menu = ['1. Analyze a new search', '2. Analyze a saved search', '3. Exit']
+      terminal_menu = TerminalMenu(menu, title='\nAnalyze Menu\n')
+      menu_entry_index = terminal_menu.show()
+      # going over the menu choices
+      if menu_entry_index == 0:
+        super().__init__()
+      elif menu_entry_index == 1:
+        self.__analyze_saved()
+      elif menu_entry_index == 2:
+        break
+
+  def __analyze_saved(self):
+    '''Analyzes a saved search'''
+    menu = []
+    for file in listdir('saved_searches/'):
+      menu.append(file)
+    if menu:
+      menu.append('Exit')
+      terminal_menu = TerminalMenu(menu, title='\nSelect a file you wish to analyze\n')
+      menu_entry_index = terminal_menu.show()
+      for file in listdir('saved_searches/'):
+        if menu_entry_index == menu.index(file):
+          df = pd.read_csv(f'saved_searches/{file}')
+          while True:
+            menu = ['1. Display all data', '2. Exit']
+            terminal_menu = TerminalMenu(menu, title='\nSelect the type of analysis you wish to perform\n')
+            menu_entry_index = terminal_menu.show()
+            # going over the menu choices
+            if menu_entry_index == 0:
+              print(f'\n{df}')
+            elif menu_entry_index == 1:
+              break
+        else:
+          pass
+    elif not menu:
+      print('\nYou have no saved searches.\n')
 
