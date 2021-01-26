@@ -4,6 +4,7 @@ import keyring
 import pandas as pd
 import csv
 from os import path, listdir
+from tabulate import tabulate
 
 class Search:
   '''Performs a search by calling the API and saves the response in a dictionary'''
@@ -27,7 +28,7 @@ class Search:
         if 'postal_code' in self.__search_input.keys():
           del self.__search_input['postal_code']
       elif menu_entry_index == 1:
-        self.__search_input['state_code'] = input('\nEnter the state code you wish to search in: ')
+        self.__search_input['state_code'] = input('\nEnter the state code you wish to search in: ').upper()
         # if there is a zip value it gets removed from the dic
         if 'postal_code' in self.__search_input.keys():
           del self.__search_input['postal_code']
@@ -45,10 +46,11 @@ class Search:
       elif menu_entry_index == 5:
         self.__search_input['price_max'] = input('\nEnter the maximum price: ')
       elif menu_entry_index == 6:
-        if not self.__submit_search():
-          break
-        elif self.__submit_search():
-          continue
+        if self.__submit_search():
+          df = pd.DataFrame(self.__search_results)
+          print(tabulate(df, headers='keys', tablefmt='psql'))
+          print('\nYou have successfully submitted your search.\n')
+          print('\nYou can save your last search in the main menu.')
       elif menu_entry_index == 7:
         break
 
@@ -59,8 +61,9 @@ class Search:
       'x-rapidapi-key': self.__api_key,
       'x-rapidapi-host': "realtor.p.rapidapi.com"
     }
+    querystring = self.__search_input
 
-    response = requests.request("GET", url, headers=headers, params=self.__search_input)
+    response = requests.request("GET", url, headers=headers, params=querystring)
     # creating a dict from the JSON response
     response_dict = response.json()
     if response_dict['properties']:
@@ -98,16 +101,15 @@ class Search:
         self.__search_results['Price'] = price_list
         self.__search_results['Property Type'] = type_list
         self.__search_results['Web URL'] = web_url_list
-        print('\nYou have successfully submitted your search.\n')
-        return 0
+        return True
       except:
         print('\nOne or more of your inputs are incorrect or non existing.')
         print('Please try again.\n')
-        return 1
+        return False
     elif not response_dict['properties']:
       print('\nOne or more of your inputs are incorrect or non existing.')
       print('Please try again.\n')
-      return 1
+      return False
 
   def save_search(self):
     '''Saves the search to a .csv file in the saved_searches folder only if the filename doesn't exist'''
@@ -131,6 +133,22 @@ class AnalyzeSearch(Search):
       # going over the menu choices
       if menu_entry_index == 0:
         super().__init__()
+        df = pd.DataFrame(self._Search__search_results)
+        while True:
+          menu = ['1. Average price', '2. Types of properties', '3. 2B/2B or more', '4. Exit']
+          terminal_menu = TerminalMenu(menu, title='\nSelect the type of analysis you wish to perform\n')
+          menu_entry_index = terminal_menu.show()
+          # going over the menu choices
+          if menu_entry_index == 0:
+            print(f"\n\t\tThe average price of property in your search is: ${round(df['Price'].mean(), 2)}\n")
+          elif menu_entry_index == 1:
+            print(f"\n{df['Property Type'].value_counts().to_string()}\n")
+          elif menu_entry_index == 2:
+            mask = df['Bedrooms'] >= 2
+            mask1 = df['Bathrooms'] >= 2
+            print(tabulate(df[mask & mask1], headers='keys', tablefmt='psql'))
+          elif menu_entry_index == 3:
+            break
       elif menu_entry_index == 1:
         self.__analyze_saved()
       elif menu_entry_index == 2:
@@ -149,16 +167,24 @@ class AnalyzeSearch(Search):
         if menu_entry_index == menu.index(file):
           df = pd.read_csv(f'saved_searches/{file}')
           while True:
-            menu = ['1. Display all data', '2. Exit']
+            menu = ['1. Average price', '2. Types of properties', '3. 2B/2B or more', '4. Exit']
             terminal_menu = TerminalMenu(menu, title='\nSelect the type of analysis you wish to perform\n')
             menu_entry_index = terminal_menu.show()
             # going over the menu choices
             if menu_entry_index == 0:
-              print(f'\n{df}')
+              print(f"\n\t\tThe average price of property in your search is: ${round(df['Price'].mean(), 2)}\n")
             elif menu_entry_index == 1:
+              print(f"\n{df['Property Type'].value_counts().to_string()}\n")
+            elif menu_entry_index == 2:
+              mask = df['Bedrooms'] >= 2
+              mask1 = df['Bathrooms'] >= 2
+              print(tabulate(df[mask & mask1], headers='keys', tablefmt='psql'))
+            elif menu_entry_index == 3:
               break
         else:
           pass
     elif not menu:
       print('\nYou have no saved searches.\n')
 
+
+test = AnalyzeSearch()
