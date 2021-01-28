@@ -10,7 +10,7 @@ class Search:
   '''Performs a search by calling the API and saves the response in a dictionary'''
   def __init__(self):
     '''initialize a search menu'''
-    self.__search_input = {'offset': '0', 'limit': '200'}
+    self.__search_input = {'offset': '0', 'limit': '50'}
     self.__search_results = {}
     # getting the api key from key chain
     self.__api_key = keyring.get_password('realtor', 'realtor')
@@ -50,7 +50,7 @@ class Search:
           df = pd.DataFrame(self.__search_results)
           print(tabulate(df, headers='keys', tablefmt='psql'))
           print('\nYou have successfully submitted your search.\n')
-          print('\nYou can save your last search in the main menu.')
+          break
       elif menu_entry_index == 7:
         break
 
@@ -128,7 +128,7 @@ class AnalyzeSearch(Search):
     '''Initializes a menu'''
     while True:
       menu = ['1. Analyze a new search', '2. Analyze a saved search', '3. Exit']
-      terminal_menu = TerminalMenu(menu, title='\nAnalyze Menu\n')
+      terminal_menu = TerminalMenu(menu, title='\nANALYSIS MENU\n')
       menu_entry_index = terminal_menu.show()
       # going over the menu choices
       if menu_entry_index == 0:
@@ -187,4 +187,27 @@ class AnalyzeSearch(Search):
       print('\nYou have no saved searches.\n')
 
 
-test = AnalyzeSearch()
+class MainMenu:
+  '''Creates an instance of the main menu'''
+  def __init__(self):
+    menu = ['1. New Search', '2. Save Your Last Search', '3. Analyze a Search', '4. Quit']
+    print('\n\t\t\t******  WELCOME TO MY REALTOR  ******\n')
+    while True:
+      terminal_menu = TerminalMenu(menu, title='\nMAIN MENU\n')
+      menu_entry_index = terminal_menu.show()
+      if menu_entry_index == 0:
+        new_search = Search()
+      elif menu_entry_index == 1:
+        try:
+          new_search.save_search()
+        except:
+          print('\nYou have to perform a search first before you are able to save!\n')
+      elif menu_entry_index == 2:
+        new_analysis = AnalyzeSearch()
+      elif menu_entry_index == 3:
+        break
+
+
+
+if __name__ == '__main__':
+  run = MainMenu()
