@@ -3,7 +3,7 @@
 
 ### Introduction
 
-The My Realtor app helps you perform searches for realestate properties that are posted for sale. You can do custom searches based on different conditions like location, price and other. The searches can be analyzed by filtering through the received data and eventually be saved into a .csv file.
+The My Realtor app helps you perform searches for realestate properties that are posted for sale. You can do custom searches based on different conditions like location, price and other. You can save your searches. The app can do analysis from the response data or from the saved searches.
 
 ### API
 
@@ -19,8 +19,6 @@ Run the following command to create virtual enviorement: python3 -m venv env
 
 In the same folder run the following command so you can activate the virtual enviorement: source env/bin/activate
 
-***once you are done using the app type in 'deactivate' to exit the virtual enviorment***
-
 Run the following commands to install the necessary libraries:
 
 pip3 install requests
@@ -30,3 +28,13 @@ pip3 install simple-term-menu
 pip3 install keyring
 
 pip3 install pandas
+
+pip install tabulate
+
+### Classes
+
+Search()
+
+AnylyzeSearch(Search)
+
+MainMenu()
